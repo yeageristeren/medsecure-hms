@@ -6,6 +6,10 @@ import com.medsecure.common.dto.AppointmentStatusStatsDto;
 import com.medsecure.common.dto.Dashboard;
 import com.medsecure.common.dto.SystemStatsDto;
 import com.medsecure.common.response.ApiResponse;
+import com.medsecure.department.DepartmentRepository;
+import com.medsecure.department.DepartmentResponseDto;
+import com.medsecure.department.DepartmentService;
+import com.medsecure.department.NewDepartmentRequestDto;
 import com.medsecure.doctor.dto.DoctorResponseDto;
 import com.medsecure.patient.dto.PatientResponseDto;
 import com.medsecure.doctor.dto.DoctorRequestDto;
@@ -31,9 +35,9 @@ public class AdminController {
 
     private final PatientService patientService;
     private final DoctorService doctorService;
-    private final PatientRepository patientRepository;
     private final AppointmentService appointmentService;
     private final DashboardService dashboardService;
+    private final DepartmentService departmentService;
 
     @GetMapping("/dashboard/system")
     public ResponseEntity<ApiResponse<Dashboard>> getDashboard(){
@@ -70,5 +74,23 @@ public class AdminController {
     public ResponseEntity<ApiResponse<Void>> deleteDoctor(@PathVariable Long id){
         doctorService.deleteDoctor(id);
         return ResponseEntity.ok(ApiResponse.success(null,"Doctor deleted form System"));
+    }
+
+    @PostMapping("/department")
+    public ResponseEntity<ApiResponse<DepartmentResponseDto>> addNewDepartment(
+            @RequestBody NewDepartmentRequestDto dto
+    ){
+        return new ResponseEntity<>(ApiResponse.success
+                (departmentService.addNewDepartment(dto),"New Department Successfully added")
+                ,HttpStatus.CREATED);
+    }
+
+    @PostMapping("/doctors/{doctorId}/department")
+    public ResponseEntity<ApiResponse<Void>> addDoctorToDepartment(
+            @PathVariable Long doctorId,
+            @RequestBody Long departmentId
+    ){
+        doctorService.addDoctorToDepartment(doctorId,departmentId);
+        return ResponseEntity.ok(ApiResponse.success(null,"Successfully added"));
     }
 }

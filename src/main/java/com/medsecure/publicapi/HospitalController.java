@@ -1,6 +1,8 @@
 package com.medsecure.publicapi;
 
 import com.medsecure.common.response.ApiResponse;
+import com.medsecure.department.DepartmentResponseDto;
+import com.medsecure.department.DepartmentService;
 import com.medsecure.doctor.dto.DoctorResponseDto;
 import com.medsecure.doctor.DoctorService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,10 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,6 +24,7 @@ import java.util.List;
 public class HospitalController {
 
     private final DoctorService doctorService;
+    private final DepartmentService departmentService;
 
     @GetMapping("/doctors")
     public ResponseEntity<Page<DoctorResponseDto>> getAllDoctors(@RequestParam(defaultValue = "5") int size,
@@ -54,4 +54,15 @@ public class HospitalController {
                 (doctors,"Doctors with specs are found"));
     }
 
+    @GetMapping("/departments")
+    public ResponseEntity<ApiResponse<Page<DepartmentResponseDto>>> getAllDepartments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ){
+        Pageable pageable = PageRequest.of(page,size);
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .body(ApiResponse.success(
+                        departmentService.getAllDepartments(pageable),"Hospital Departments :"
+                ));
+    }
 }

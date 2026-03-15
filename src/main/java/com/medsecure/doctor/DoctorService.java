@@ -1,6 +1,8 @@
 package com.medsecure.doctor;
 
 import com.medsecure.common.exception.ResourceNotFoundException;
+import com.medsecure.department.Department;
+import com.medsecure.department.DepartmentRepository;
 import com.medsecure.doctor.dto.DoctorResponseDto;
 import com.medsecure.user.AppUser;
 import com.medsecure.doctor.dto.DoctorRequestDto;
@@ -27,6 +29,7 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
+    private final DepartmentRepository departmentRepository;
 
     public Page<DoctorResponseDto> getAllDoctors(Pageable pageable) {
         return doctorRepository.findAll(pageable)
@@ -74,5 +77,15 @@ public class DoctorService {
                 ()->new ResourceNotFoundException("Doctor not found with id :"+id.toString())
         );
         doctorRepository.delete(doctor);
+    }
+
+    @Transactional
+    public void addDoctorToDepartment(Long doctorId, Long departmentId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Department does not exist"));
+        department.getDoctors().add(doctor);
+        doctor.getDepartments().add(department);
     }
 }
